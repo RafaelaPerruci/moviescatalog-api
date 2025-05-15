@@ -10,4 +10,5 @@ public record MovieDTO (
         @JsonAlias("release_date") String date,
         @JsonAlias("vote_average") Integer rating
 ){
+
 }

@@ -1,5 +1,6 @@
 package io.github.rafaelaperruci.moviecataloginfo_api.model;
 
+import io.github.rafaelaperruci.moviecataloginfo_api.dto.MovieDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -28,6 +29,13 @@ public class Movie {
         this.overviewResume = overviewResume;
         this.releaseDate = releaseDate;
         this.rating = rating;
+    }
+
+    public Movie(MovieDTO movieDTO) {
+        this.title = movieDTO.title();
+        this.overviewResume = movieDTO.resume();
+        this.releaseDate = movieDTO.date();
+        this.rating = movieDTO.rating();
     }
 
     public String getTitle() {

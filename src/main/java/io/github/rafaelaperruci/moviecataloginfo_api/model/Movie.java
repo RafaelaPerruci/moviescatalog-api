@@ -17,7 +17,7 @@ public class Movie {
     @Column(name = "overview_resume")
     private String overviewResume;
 
-    @Column(name = "release_date")
+    @Column(name = "release_date", length = 3000)
     private String releaseDate;
     private Integer rating;
 

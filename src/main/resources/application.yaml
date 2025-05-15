@@ -2,15 +2,26 @@ server:
   port: 8081
   error:
     include-stacktrace: never
+
 spring:
   application:
     name: moviecatalog-api
+
   datasource:
-    url: jdbc:h2:mem:movies_catalog
-    username: sa #system administrator
+    url: jdbc:h2:mem:movies
+    username: sa
     password: ${DATABASE_PASSWORD}
+
   jpa:
+    hibernate:
+      ddl-auto: none  # Impede o Hibernate de recriar ou alterar o schema
     database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+
+  sql:
+    init:
+      mode: always   # Garante execução do schema.sql e data.sql
+
   h2:
     console:
       enabled: true

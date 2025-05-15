@@ -1,0 +1,22 @@
+package io.github.rafaelaperruci.moviecataloginfo_api.configuration;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class ObjectMapperConfig {
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+
+        // Boas práticas: registrar módulos, configurar visibilidade etc.
+        mapper.registerModule(new JavaTimeModule()); // suporte a Java 8 Date/Time API
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        return mapper;
+    }
+}

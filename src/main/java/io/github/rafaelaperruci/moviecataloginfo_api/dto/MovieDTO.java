@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record MovieDTO (
         @JsonAlias("original_title") String title,
-        @JsonAlias("overview_resume") String resume,
+        @JsonAlias("overview") String resume,
         @JsonAlias("release_date") String date,
-        @JsonAlias("vote_avearage") Integer rating
+        @JsonAlias("vote_average") Integer rating
 ){
 }

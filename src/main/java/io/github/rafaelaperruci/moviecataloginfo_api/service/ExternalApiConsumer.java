@@ -2,6 +2,7 @@ package io.github.rafaelaperruci.moviecataloginfo_api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.rafaelaperruci.moviecataloginfo_api.dto.MovieDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +22,12 @@ public class ExternalApiConsumer {
 
     public ExternalApiConsumer(ObjectMapper mapper) {
         this.mapper = mapper;
+
     }
 
-    public JsonNode getMovieData(String movieTitle) {
+    public MovieDTO getMovieFromExternalApi(String movieTitle) {
         JsonNode jsonNode = null;
+        MovieDTO dto = null;
         try {
             String encodedTitle = java.net.URLEncoder.encode(movieTitle, java.nio.charset.StandardCharsets.UTF_8);
             String apiUrl = "https://api.themoviedb.org/3/search/movie?query=" + encodedTitle + "&language=pt-BR";
@@ -41,9 +44,17 @@ public class ExternalApiConsumer {
 
             if (response.statusCode() == 200) {
                 jsonNode = mapper.readTree(response.body());
-                System.out.println(jsonNode.toString());
+
             } else {
-                System.err.println("Erro: status " + response.statusCode());
+                throw new IllegalStateException("Resposta da API inválida.");
+            }
+
+            if (jsonNode.has("results") && jsonNode.get("results").isArray()){
+                JsonNode results = jsonNode.get("results");
+                 dto = mapper.convertValue(results.get(1), MovieDTO.class);
+                System.out.println(dto);
+            }else {
+                throw new IllegalStateException("Resposta da API inválida.");
             }
 
         } catch (IOException e) {
@@ -52,6 +63,6 @@ public class ExternalApiConsumer {
             throw new RuntimeException(e);
         }
 
-        return jsonNode;
+        return dto;
     }
 }

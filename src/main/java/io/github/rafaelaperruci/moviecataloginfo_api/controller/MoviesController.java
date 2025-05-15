@@ -21,7 +21,7 @@ public class MoviesController {
 
     @PostMapping
     public void register(@Valid @RequestBody TitleDTO dto){
-        service.getMovieData(dto.name());
-        System.out.println(dto.name());
+        service.getMovieData(dto.title());
+        System.out.println(dto.title());
     }
 }

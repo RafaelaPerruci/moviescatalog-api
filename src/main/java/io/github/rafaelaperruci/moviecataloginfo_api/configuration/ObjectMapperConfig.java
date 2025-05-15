@@ -13,9 +13,9 @@ public class ObjectMapperConfig {
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
 
-        // Boas práticas: registrar módulos, configurar visibilidade etc.
-        mapper.registerModule(new JavaTimeModule()); // suporte a Java 8 Date/Time API
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); //remove o milissegundos e
+                                                            // serializa datas como strings formatadas padrão ISO
 
         return mapper;
     }

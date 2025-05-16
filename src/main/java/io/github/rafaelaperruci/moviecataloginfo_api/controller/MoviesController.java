@@ -1,13 +1,15 @@
 package io.github.rafaelaperruci.moviecataloginfo_api.controller;
 
 
+import io.github.rafaelaperruci.moviecataloginfo_api.dto.DeletedMovieResourceDTO;
 import io.github.rafaelaperruci.moviecataloginfo_api.dto.MovieDTO;
-import io.github.rafaelaperruci.moviecataloginfo_api.dto.MovieSerializeDTO;
+import io.github.rafaelaperruci.moviecataloginfo_api.dto.MovieResponseDTO;
 import io.github.rafaelaperruci.moviecataloginfo_api.dto.TitleDTO;
 import io.github.rafaelaperruci.moviecataloginfo_api.model.Movie;
 import io.github.rafaelaperruci.moviecataloginfo_api.repository.MovieRepository;
 import io.github.rafaelaperruci.moviecataloginfo_api.service.DateFormatter;
 import io.github.rafaelaperruci.moviecataloginfo_api.service.MovieService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -43,7 +45,7 @@ public class MoviesController {
           movie.setReleaseDate(formatedDate);
           System.out.println(movie);
           repository.save(movie);
-          return ResponseEntity.status(HttpStatus.CREATED).body(new MovieSerializeDTO(movie));
+          return ResponseEntity.status(HttpStatus.CREATED).body(new MovieResponseDTO(movie));
 
         }catch (IllegalArgumentException | IllegalStateException e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro inesperado ao registrar o filme.");
@@ -54,21 +56,31 @@ public class MoviesController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<MovieSerializeDTO>> getAllMovies(@PageableDefault(size = 10, sort = {"title"}) Pageable pagination) {
+    public ResponseEntity<Page<MovieResponseDTO>> getAllMovies(@PageableDefault(size = 10, sort = {"title"}) Pageable pagination) {
         Page<Movie> moviesPage = repository.findAll(pagination);
         if (moviesPage.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        Page<MovieSerializeDTO> dtoPage = moviesPage.map(MovieSerializeDTO::new);
+        Page<MovieResponseDTO> dtoPage = moviesPage.map(MovieResponseDTO::new);
         return ResponseEntity.ok(dtoPage);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MovieSerializeDTO> getMovie(@PathVariable String id) {
+    public ResponseEntity<MovieResponseDTO> getMovieById(@PathVariable String id) {
         Movie movie = repository.findById(id).orElse(null);
         if (movie == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(new MovieSerializeDTO(movie));
+        return ResponseEntity.ok(new MovieResponseDTO(movie));
+    }
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<DeletedMovieResourceDTO> deleteMovie(@PathVariable String id) {
+        Optional<Movie> movie = repository.findById(id);
+        if (movie.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        repository.deleteById(id);
+        return ResponseEntity.ok(new DeletedMovieResourceDTO(id, "Filme deletado com sucesso."));
     }
 }

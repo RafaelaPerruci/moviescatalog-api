@@ -16,9 +16,4 @@ public class MovieService {
         return externalApiConsumer.getMovieFromExternalApi(name);
     }
 
-//    public Movie fromMovie(JsonNode jsonNode) {
-//        if (jsonNode.isArray() && jsonNode.size() > 1) {
-//
-//        }
-//    }
 }

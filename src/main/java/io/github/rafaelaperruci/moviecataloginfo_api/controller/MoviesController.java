@@ -11,6 +11,7 @@ import io.github.rafaelaperruci.moviecataloginfo_api.service.DateFormatter;
 import io.github.rafaelaperruci.moviecataloginfo_api.service.MovieService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -56,7 +57,7 @@ public class MoviesController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<MovieResponseDTO>> getAllMovies(@PageableDefault(size = 10, sort = {"title"}) Pageable pagination) {
+    public ResponseEntity<Page<MovieResponseDTO>> getAllMovies(@ParameterObject @PageableDefault(size = 10, sort = {"title"}) Pageable pagination) {
         Page<Movie> moviesPage = repository.findAll(pagination);
         if (moviesPage.isEmpty()) {
             return ResponseEntity.noContent().build();

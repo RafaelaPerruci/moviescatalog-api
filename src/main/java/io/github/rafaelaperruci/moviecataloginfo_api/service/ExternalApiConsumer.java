@@ -22,7 +22,6 @@ public class ExternalApiConsumer {
 
     public ExternalApiConsumer(ObjectMapper mapper) {
         this.mapper = mapper;
-
     }
 
     public MovieDTO getMovieFromExternalApi(String movieTitle) {
@@ -50,8 +49,8 @@ public class ExternalApiConsumer {
             }
 
             if (jsonNode.has("results") && jsonNode.get("results").isArray()){
-                JsonNode results = jsonNode.get("results");
-                 dto = mapper.convertValue(results.get(1), MovieDTO.class);
+                JsonNode results = jsonNode.get("results").get(0);
+                dto = mapper.convertValue(results, MovieDTO.class);
                 System.out.println(dto);
             }else {
                 throw new IllegalStateException("Resposta da API inválida.");

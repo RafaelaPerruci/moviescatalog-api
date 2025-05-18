@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 @Service
 public class DateFormatter {
@@ -12,7 +13,14 @@ public class DateFormatter {
     private static final DateTimeFormatter OUTPUT_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public String format(String isoDate) {
-        LocalDate date = LocalDate.parse(isoDate, INPUT_FORMAT);
-        return date.format(OUTPUT_FORMAT);
+       if (isoDate == null || isoDate.isBlank()) {
+           throw new IllegalArgumentException("A data não pode ser nula ou vazia.");
+       }
+        try {
+            LocalDate date = LocalDate.parse(isoDate, INPUT_FORMAT);
+            return date.format(OUTPUT_FORMAT);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Formato de data inválido. Esperado: yyyy-MM-dd.");
+        }
     }
 }

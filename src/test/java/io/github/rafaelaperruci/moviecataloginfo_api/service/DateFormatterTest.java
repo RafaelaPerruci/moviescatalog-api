@@ -1,5 +1,6 @@
 package io.github.rafaelaperruci.moviecataloginfo_api.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,7 +19,9 @@ class DateFormatterTest {
     @Test
     void shouldThrowExceptionWhenDateIsInvalid() {
         String invalidDate = "25-12-2024";
-        assertThrows(Exception.class, () -> formatter.format(invalidDate));
+        assertThrows(IllegalArgumentException.class, () -> formatter.format(invalidDate));
+
+        Assertions.assertEquals("Formato de data inválido. Esperado: yyyy-MM-dd.", invalidDate);
     }
 
 }

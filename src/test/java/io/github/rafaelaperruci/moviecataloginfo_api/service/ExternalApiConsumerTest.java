@@ -5,27 +5,32 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
 class ExternalApiConsumerTest {
 
     @Test
     public void shouldReturnValidDataWhenNameIsProvided() {
 
-        ExternalApiConsumer mockExternalApiConsumer = mock(ExternalApiConsumer.class);
-        MovieService service = new MovieService(mockExternalApiConsumer);
+        ExternalApiConsumer mockConsumer = mock(ExternalApiConsumer.class);
+        MovieService service = new MovieService(mockConsumer);
+
         MovieDTO mockDto = new MovieDTO("Matrix", "Um hacker descobre a verdade.", "1999-05-01", 7);
 
-        when(service.getMovieData("Matrix")).thenReturn(mockDto);
+        when(mockConsumer.getMovieFromExternalApi("Matrix")).thenReturn(mockDto);
+
 
         MovieDTO result = service.getMovieData("Matrix");
 
         assertNotNull(result);
         assertEquals("Matrix", result.title());
-        assertEquals("Um hacker descobre a verdade.", result.resume());
         assertEquals("1999-05-01", result.date());
-        assertEquals(7, result.rating());
+
+        verify(mockConsumer, times(1)).getMovieFromExternalApi("Matrix");
+
+
+
     }
 
 }

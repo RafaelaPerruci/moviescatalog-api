@@ -11,21 +11,19 @@ class MovieServiceTest {
     @Test
     void returnValidDataWhenNameIsProvided() {
 
-        ExternalApiConsumer mockConsumer = mock(ExternalApiConsumer.class);
-        MovieService service = new MovieService(mockConsumer);
-
+        ExternalApiConsumer mockExternalApiConsumer = mock(ExternalApiConsumer.class);
+        MovieService service = new MovieService(mockExternalApiConsumer);
         MovieDTO mockDto = new MovieDTO("Matrix", "Um hacker descobre a verdade.", "1999-05-01", 7);
 
-        when(mockConsumer.getMovieFromExternalApi("Matrix")).thenReturn(mockDto);
-
+        when(service.getMovieData("Matrix")).thenReturn(mockDto);
 
         MovieDTO result = service.getMovieData("Matrix");
 
         assertNotNull(result);
         assertEquals("Matrix", result.title());
+        assertEquals("Um hacker descobre a verdade.", result.resume());
         assertEquals("1999-05-01", result.date());
-
-        verify(mockConsumer, times(1)).getMovieFromExternalApi("Matrix");
+        assertEquals(7, result.rating());
     }
 
 }

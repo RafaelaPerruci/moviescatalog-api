@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.rafaelaperruci.moviecataloginfo_api.dto.MovieDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class ExternalApiConsumer {
@@ -19,49 +19,45 @@ public class ExternalApiConsumer {
     private String token;
 
     private ObjectMapper mapper;
+    private WebClient webClient;
 
-    public ExternalApiConsumer(ObjectMapper mapper) {
+
+    public ExternalApiConsumer(ObjectMapper mapper, WebClient webClient) {
         this.mapper = mapper;
+        this.webClient = webClient;
     }
 
     public MovieDTO getMovieFromExternalApi(String movieTitle) {
-        JsonNode jsonNode = null;
-        MovieDTO dto = null;
         try {
-            String encodedTitle = java.net.URLEncoder.encode(movieTitle, java.nio.charset.StandardCharsets.UTF_8);
-            String apiUrl = "https://api.themoviedb.org/3/search/movie?query=" + encodedTitle + "&language=pt-BR";
-            HttpClient httpClient = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(apiUrl))
-                    .GET()
+            String encodedTitle = URLEncoder.encode(movieTitle, StandardCharsets.UTF_8);
+            String uri = "/search/movie?query=" + encodedTitle + "&language=pt-BR";
+
+            String responseBody = webClient
+                    .get()
+                    .uri(uri)
                     .header("Authorization", "Bearer " + token)
-                    .header("Accept", "application/json")
-                    .build();
+                    .retrieve()
+                    .onStatus(status -> !status.is2xxSuccessful(),
+                            clientResponse -> Mono.error(new IllegalStateException("Resposta da API inválida.")))
+                    .bodyToMono(String.class)
+                    .block();
 
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            JsonNode jsonNode = mapper.readTree(responseBody);
 
-
-            if (response.statusCode() == 200) {
-                jsonNode = mapper.readTree(response.body());
-
-            } else {
-                throw new IllegalStateException("Resposta da API inválida.");
-            }
-
-            if (jsonNode.has("results") && jsonNode.get("results").isArray()){
+            if (jsonNode.has("results") && jsonNode.get("results").isArray() && !jsonNode.get("results").isEmpty()) {
                 JsonNode results = jsonNode.get("results").get(0);
-                dto = mapper.convertValue(results, MovieDTO.class);
-                System.out.println(dto);
-            }else {
-                throw new IllegalStateException("Resposta da API inválida.");
+                return mapper.convertValue(results, MovieDTO.class);
+            } else {
+                throw new IllegalStateException("Nenhum resultado encontrado.");
             }
 
-        } catch (IOException e) {
-            System.err.println("Erro ao consumir API externa: " + e.getMessage());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
-
-        return dto;
+        catch (IOException e){
+            throw new RuntimeException("Erro ao ler o JSON da API externa: " + e.getMessage(), e);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Erro ao consumir a API externa: " + e.getMessage(), e);
+        }
     }
+
 }

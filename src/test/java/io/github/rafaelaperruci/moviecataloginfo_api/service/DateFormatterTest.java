@@ -16,7 +16,7 @@ class DateFormatterTest {
     }
 
     @Test
-    void deveLancarExcecaoParaDataInvalida() {
+    void shouldThrowExceptionWhenDateIsInvalid() {
         String invalidDate = "25-12-2024";
         assertThrows(Exception.class, () -> formatter.format(invalidDate));
     }

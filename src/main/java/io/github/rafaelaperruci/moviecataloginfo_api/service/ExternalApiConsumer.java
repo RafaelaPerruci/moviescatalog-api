@@ -28,6 +28,7 @@ public class ExternalApiConsumer {
     }
 
     public MovieDTO getMovieFromExternalApi(String movieTitle) {
+
         try {
             String encodedTitle = URLEncoder.encode(movieTitle, StandardCharsets.UTF_8);
             String uri = "/search/movie?query=" + encodedTitle + "&language=pt-BR";
@@ -36,11 +37,11 @@ public class ExternalApiConsumer {
                     .get()
                     .uri(uri)
                     .header("Authorization", "Bearer " + token)
-                    .retrieve()
+                    .retrieve() //envia a requisição aqui
                     .onStatus(status -> !status.is2xxSuccessful(),
                             clientResponse -> Mono.error(new IllegalStateException("Resposta da API inválida.")))
-                    .bodyToMono(String.class)
-                    .block();
+                    .bodyToMono(String.class)//recupera o corpo da resposta aqui
+                    .block();//executa de forma síncrona evitando efeitos colaterais
 
             JsonNode jsonNode = mapper.readTree(responseBody);
 

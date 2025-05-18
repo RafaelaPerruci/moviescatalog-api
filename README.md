@@ -25,6 +25,10 @@ MovieCatalogInfo é uma API RESTful desenvolvida para facilitar o cadastro, cons
 
 - Maven
 
+- JUnit
+
+- Mockito
+
 
 
 ## 📘 Interface da Documentação da API (Swagger)

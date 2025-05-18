@@ -29,8 +29,6 @@ class ExternalApiConsumerTest {
 
         verify(mockConsumer, times(1)).getMovieFromExternalApi("Matrix");
 
-
-
     }
 
 }

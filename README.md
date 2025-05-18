@@ -11,7 +11,7 @@ MovieCatalogInfo é uma API RESTful desenvolvida para facilitar o cadastro, cons
 
 ❌ Deletar filme por ID
 
-🛠️ Tecnologias usadas
+## 🛠️ Tecnologias usadas
 
 - Java 21
 

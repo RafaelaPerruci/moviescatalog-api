@@ -27,25 +27,17 @@ import java.util.UUID;
 public class MoviesController {
 
     private MovieService service;
-    private MovieRepository repository;
-    private DateFormatter dateFormatter;
 
-    public MoviesController(MovieService service, MovieRepository repository, DateFormatter dateFormatter) {
+
+    public MoviesController(MovieService service) {
         this.service = service;
-        this.repository = repository;
-        this.dateFormatter = dateFormatter;
     }
 
     @PostMapping
     public ResponseEntity<?> register(@Valid @RequestBody TitleDTO dto){
         try {
           MovieDTO movieDTO = service.getMovieData(dto.title());
-          Movie movie = new Movie(movieDTO);
-          movie.setId(UUID.randomUUID().toString());
-          String formatedDate = dateFormatter.format(movieDTO.date());
-          movie.setReleaseDate(formatedDate);
-          System.out.println(movie);
-          repository.save(movie);
+          Movie movie = service.registerMovie(movieDTO);
           return ResponseEntity.status(HttpStatus.CREATED).body(new MovieResponseDTO(movie));
 
         }catch (IllegalArgumentException | IllegalStateException e){
@@ -58,30 +50,29 @@ public class MoviesController {
 
     @GetMapping
     public ResponseEntity<Page<MovieResponseDTO>> getAllMovies(@ParameterObject @PageableDefault(size = 10, sort = {"title"}) Pageable pagination) {
-        Page<Movie> moviesPage = repository.findAll(pagination);
+
+        Page<MovieResponseDTO> moviesPage = service.getAllMovies(pagination);
         if (moviesPage.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        Page<MovieResponseDTO> dtoPage = moviesPage.map(MovieResponseDTO::new);
-        return ResponseEntity.ok(dtoPage);
+        return ResponseEntity.ok(moviesPage);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<MovieResponseDTO> getMovieById(@PathVariable String id) {
-        Movie movie = repository.findById(id).orElse(null);
+        MovieResponseDTO movie = service.findMovieById(id);
         if (movie == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(new MovieResponseDTO(movie));
+        return ResponseEntity.ok(movie);
     }
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<DeletedMovieResourceDTO> deleteMovie(@PathVariable String id) {
-        Optional<Movie> movie = repository.findById(id);
+        Optional<Movie> movie = service.deleteMovieById(id);
         if (movie.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        repository.deleteById(id);
         return ResponseEntity.ok(new DeletedMovieResourceDTO(id, "Filme deletado com sucesso."));
     }
 }
